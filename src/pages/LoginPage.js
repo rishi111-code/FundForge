@@ -31,7 +31,7 @@ const LoginPage = () => {
         if (data.user.role === "investor") {
           navigate("/InvestorDashboard");
         } else if (data.user.role === "founder") {
-          navigate("/founder-dashboard");
+          navigate("/founderdashboard");
         } else {
           navigate("/"); // fallback
         }

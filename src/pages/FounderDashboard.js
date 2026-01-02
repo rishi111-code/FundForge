@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, } from "recharts";
+
 import {
   BarChart3,
   Briefcase,
@@ -14,13 +16,34 @@ import {
   PieChart,
   MessageSquare,
   Globe,
+  Calendar,
+  Bell,
+  FileText,
+  Rocket,
+  BarChart,
 } from "lucide-react";
 
 const FounderDashboard = () => {
   const [user, setUser] = useState(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false); // mobile default closed
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const navigate = useNavigate();
+const [showInvestors, setShowInvestors] = useState(false);
+const [showMarketReach, setShowMarketReach] = useState(false);
+
+const activeInvestors = [
+  { name: "Rahul Mehta", country: "India", amount: "$20,000" },
+  { name: "Sarah Johnson", country: "USA", amount: "$35,000" },
+  { name: "Tan Wei", country: "Singapore", amount: "$25,000" },
+  { name: "Oliver Smith", country: "UK", amount: "$15,000" },
+];
+
+const marketReach = [
+  { country: "India", investors: 6 },
+  { country: "USA", investors: 4 },
+  { country: "Singapore", investors: 2 },
+  { country: "UK", investors: 2 },
+];
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -46,10 +69,18 @@ const FounderDashboard = () => {
     { name: "Karan Shah", role: "COO" },
     { name: "Amit Mehta", role: "Head of Marketing" },
   ];
+const fundingData = [
+  { month: "Jan", amount: 20000 },
+  { month: "Feb", amount: 35000 },
+  { month: "Mar", amount: 42000 },
+  { month: "Apr", amount: 60000 },
+  { month: "May", amount: 82000 },
+  { month: "Jun", amount: 120000 },
+];
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800">
-      {/* Sidebar - fixed always on left, but hidden on mobile with translate */}
+      {/* Sidebar */}
       <motion.aside
         initial={false}
         animate={{ x: 0 }}
@@ -68,22 +99,22 @@ const FounderDashboard = () => {
               <span>Dashboard</span>
             </button>
 
-            <button className="flex items-center gap-3 text-gray-700 py-2 px-3 rounded-md hover:bg-gray-50">
+            <button className="flex items-center gap-3 text-gray-700 py-2 rounded-md hover:bg-gray-50" onClick={() => navigate('/mystartups')}>
               <Briefcase size={18} />
               <span>My Startups</span>
             </button>
 
-            <button className="flex items-center gap-3 text-gray-700 py-2 px-3 rounded-md hover:bg-gray-50">
+            <button className="flex items-center gap-3 text-gray-700 py-2 rounded-md hover:bg-gray-50" onClick={() => navigate('/investorspage')}>
               <Users size={18} />
               <span>Investors</span>
             </button>
 
-            <button className="flex items-center gap-3 text-gray-700 py-2 px-3 rounded-md hover:bg-gray-50">
+            <button className="flex items-center gap-3 text-gray-700 py-2 rounded-md hover:bg-gray-50" onClick={() => navigate('/messages')}>
               <MessageSquare size={18} />
               <span>Messages</span>
             </button>
 
-            <button className="flex items-center gap-3 text-gray-700 py-2 px-3 rounded-md hover:bg-gray-50">
+            <button className="flex items-center gap-3 text-gray-700 py-2 rounded-md hover:bg-gray-50" onClick={() => navigate('/founderprofile')}>
               <User size={18} />
               <span>Profile</span>
             </button>
@@ -114,7 +145,7 @@ const FounderDashboard = () => {
         )}
       </AnimatePresence>
 
-      {/* Main content area — offset on md screens to match sidebar width */}
+      {/* Main content */}
       <div className="md:ml-64">
         {/* Header */}
         <header className="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200 sticky top-0 z-20">
@@ -144,9 +175,12 @@ const FounderDashboard = () => {
           </div>
         </header>
 
-        {/* Page content */}
+        {/* CONTENT */}
         <main className="max-w-7xl mx-auto p-6 md:p-10 space-y-10">
-          {/* Top stats */}
+
+          {/* ------------------------------ */}
+          {/* TOP STATS */}
+          {/* ------------------------------ */}
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="bg-white p-5 rounded-xl shadow">
               <div className="flex items-center justify-between">
@@ -160,17 +194,45 @@ const FounderDashboard = () => {
               </div>
             </div>
 
-            <div className="bg-white p-5 rounded-xl shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500">Active Investors</p>
-                  <p className="text-2xl font-bold mt-1">15</p>
-                </div>
-                <div className="p-3 bg-indigo-50 rounded-md">
-                  <Users className="text-indigo-600" />
-                </div>
-              </div>
+            <div className="bg-white p-5 rounded-xl shadow relative">
+  <div
+    className="flex items-center justify-between cursor-pointer"
+    onClick={() => setShowInvestors(!showInvestors)}
+  >
+    <div>
+      <p className="text-sm text-gray-500">Active Investors</p>
+      <p className="text-2xl font-bold mt-1">15</p>
+      <p className="text-xs text-indigo-600 mt-1">View details</p>
+    </div>
+    <div className="p-3 bg-indigo-50 rounded-md">
+      <Users className="text-indigo-600" />
+    </div>
+  </div>
+
+  <AnimatePresence>
+    {showInvestors && (
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        className="absolute top-full left-0 mt-3 w-full bg-white border rounded-xl shadow-lg z-10"
+      >
+        {activeInvestors.map((inv, i) => (
+          <div key={i} className="flex justify-between px-4 py-3 border-b last:border-b-0">
+            <div>
+              <p className="font-medium">{inv.name}</p>
+              <p className="text-xs text-gray-500">{inv.country}</p>
             </div>
+            <span className="text-sm font-semibold text-green-600">
+              {inv.amount}
+            </span>
+          </div>
+        ))}
+      </motion.div>
+    )}
+  </AnimatePresence>
+</div>
+
 
             <div className="bg-white p-5 rounded-xl shadow">
               <div className="flex items-center justify-between">
@@ -184,20 +246,92 @@ const FounderDashboard = () => {
               </div>
             </div>
 
-            <div className="bg-white p-5 rounded-xl shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500">Market Reach</p>
-                  <p className="text-2xl font-bold mt-1">8 Countries</p>
-                </div>
-                <div className="p-3 bg-indigo-50 rounded-md">
-                  <Globe className="text-indigo-600" />
-                </div>
-              </div>
-            </div>
+            <div className="bg-white p-5 rounded-xl shadow relative">
+  <div
+    className="flex items-center justify-between cursor-pointer"
+    onClick={() => setShowMarketReach(!showMarketReach)}
+  >
+    <div>
+      <p className="text-sm text-gray-500">Market Reach</p>
+      <p className="text-2xl font-bold mt-1">8 Countries</p>
+      <p className="text-xs text-indigo-600 mt-1">View regions</p>
+    </div>
+    <div className="p-3 bg-indigo-50 rounded-md">
+      <Globe className="text-indigo-600" />
+    </div>
+  </div>
+
+  <AnimatePresence>
+    {showMarketReach && (
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        className="absolute top-full left-0 mt-3 w-full bg-white border rounded-xl shadow-lg z-10"
+      >
+        {marketReach.map((m, i) => (
+          <div key={i} className="flex justify-between px-4 py-3 border-b last:border-b-0">
+            <span className="font-medium">{m.country}</span>
+            <span className="text-sm bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full">
+              {m.investors} Investors
+            </span>
+          </div>
+        ))}
+      </motion.div>
+    )}
+  </AnimatePresence>
+</div>
+
           </section>
 
-          {/* Active projects + quick actions */}
+          {/* -------------------------------- */}
+          {/* NEW SECTION 1: FUNDING ANALYTICS */}
+          {/* -------------------------------- */}
+          <section className="bg-white p-6 rounded-xl shadow">
+            <h2 className="text-xl font-semibold mb-3">Funding Analytics</h2>
+            <p className="text-sm text-gray-600 mb-5">Real-time insights into your fundraising performance.</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="p-4 border rounded-lg">
+                <p className="text-sm text-gray-500">Monthly Growth</p>
+                <p className="text-xl font-bold mt-1">+12%</p>
+              </div>
+
+              <div className="p-4 border rounded-lg">
+                <p className="text-sm text-gray-500">Investor Engagement</p>
+                <p className="text-xl font-bold mt-1">76%</p>
+              </div>
+
+              <div className="p-4 border rounded-lg">
+                <p className="text-sm text-gray-500">Avg. Ticket Size</p>
+                <p className="text-xl font-bold mt-1">$8,540</p>
+              </div>
+            </div>
+
+            <div className="mt-6 h-64">
+  <ResponsiveContainer width="100%" height="100%">
+    <LineChart data={fundingData}>
+      <CartesianGrid strokeDasharray="3 3" />
+      <XAxis dataKey="month" />
+      <YAxis />
+      <Tooltip />
+      <Line
+        type="monotone"
+        dataKey="amount"
+        stroke="#4f46e5"
+        strokeWidth={3}
+        dot={{ r: 4 }}
+        activeDot={{ r: 6 }}
+      />
+    </LineChart>
+  </ResponsiveContainer>
+</div>
+
+          </section>
+
+          {/* ------------------------------ */}
+          {/* ACTIVE PROJECTS + QUICK ACTIONS */}
+          {/* ------------------------------ */}
           <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow">
               <div className="flex items-center justify-between mb-4">
@@ -236,7 +370,42 @@ const FounderDashboard = () => {
             </aside>
           </section>
 
-          {/* Team */}
+          {/* ---------------------------------- */}
+          {/* NEW SECTION 2: UPCOMING MEETINGS */}
+          {/* ---------------------------------- */}
+          <section className="bg-white p-6 rounded-xl shadow">
+            <h3 className="text-xl font-semibold mb-4">Upcoming Meetings & Events</h3>
+
+            <div className="space-y-4">
+              <div className="p-4 border rounded-lg flex items-start gap-4">
+                <Calendar className="text-indigo-600" />
+                <div>
+                  <h4 className="font-semibold">Investor Pitch Review</h4>
+                  <p className="text-sm text-gray-600">Scheduled on 17 Jan, 4:00 PM</p>
+                </div>
+              </div>
+
+              <div className="p-4 border rounded-lg flex items-start gap-4">
+                <Calendar className="text-indigo-600" />
+                <div>
+                  <h4 className="font-semibold">Fundraising Strategy Call</h4>
+                  <p className="text-sm text-gray-600">21 Jan, 12:30 PM</p>
+                </div>
+              </div>
+
+              <div className="p-4 border rounded-lg flex items-start gap-4">
+                <Calendar className="text-indigo-600" />
+                <div>
+                  <h4 className="font-semibold">Networking Meetup</h4>
+                  <p className="text-sm text-gray-600">24 Jan, Ahmedabad</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* ------------------------------ */}
+          {/* TEAM */}
+          {/* ------------------------------ */}
           <section className="bg-white rounded-xl p-6 shadow">
             <h3 className="font-semibold mb-4">Core Team</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -252,7 +421,34 @@ const FounderDashboard = () => {
             </div>
           </section>
 
-          {/* Recent updates */}
+          {/* ------------------------------------ */}
+          {/* NEW SECTION 3: NOTIFICATION CENTER */}
+          {/* ------------------------------------ */}
+          <section className="bg-white rounded-xl p-6 shadow">
+            <h3 className="text-xl font-semibold mb-4">Notification Center</h3>
+
+            <div className="space-y-4">
+              <div className="flex gap-4 items-start p-4 border rounded-lg">
+                <Bell className="text-indigo-600" />
+                <div>
+                  <p className="font-semibold">New investor viewed your pitch deck</p>
+                  <p className="text-sm text-gray-600">3 hours ago</p>
+                </div>
+              </div>
+
+              <div className="flex gap-4 items-start p-4 border rounded-lg">
+                <Bell className="text-indigo-600" />
+                <div>
+                  <p className="font-semibold">Your startup EcoFund reached 70% of its target</p>
+                  <p className="text-sm text-gray-600">Yesterday</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* ------------------------------ */}
+          {/* RECENT UPDATES */}
+          {/* ------------------------------ */}
           <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {recent.map((r, i) => (
               <div key={i} className="bg-white p-6 rounded-xl shadow">
@@ -262,14 +458,51 @@ const FounderDashboard = () => {
             ))}
           </section>
 
-          {/* Footer (non-sticky) */}
+          {/* ---------------------------------- */}
+          {/* NEW SECTION 4: RESOURCES + TIPS */}
+          {/* ---------------------------------- */}
+          <section className="bg-white rounded-xl p-6 shadow">
+            <h3 className="text-xl font-semibold mb-4">Resources & Tools</h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="p-4 border rounded-lg bg-gray-50">
+                <FileText className="text-indigo-600" />
+                <p className="font-semibold mt-2">Pitch Deck Template</p>
+                <p className="text-sm text-gray-500">Download a VC-ready deck template.</p>
+              </div>
+
+              <div className="p-4 border rounded-lg bg-gray-50">
+                <Rocket className="text-indigo-600" />
+                <p className="font-semibold mt-2">Startup Toolkit</p>
+                <p className="text-sm text-gray-500">Essential resources for founders.</p>
+              </div>
+
+              <div className="p-4 border rounded-lg bg-gray-50">
+                <BarChart className="text-indigo-600" />
+                <p className="font-semibold mt-2">Financial Model</p>
+                <p className="text-sm text-gray-500">Pre-built cost and revenue sheets.</p>
+              </div>
+            </div>
+
+            <h3 className="text-xl font-semibold mt-8 mb-3">Founder Tips</h3>
+            <ul className="list-disc text-gray-600 pl-6 space-y-2">
+              <li>Keep your pitch crisp, clear, and data-driven.</li>
+              <li>Engage with investors regularly for stronger relationships.</li>
+              <li>Track KPIs weekly, not monthly.</li>
+            </ul>
+          </section>
+
+          {/* ------------------------------ */}
+          {/* FOOTER */}
+          {/* ------------------------------ */}
           <footer className="text-center text-sm text-gray-500 py-6">
             © {new Date().getFullYear()} <span className="font-semibold text-indigo-600">FundForge</span>. All rights reserved. &nbsp;|&nbsp; <a href="#" className="hover:text-indigo-600">Privacy Policy</a> &nbsp;|&nbsp; <a href="#" className="hover:text-indigo-600">Terms</a>
           </footer>
+
         </main>
       </div>
 
-      {/* Logout confirmation modal */}
+      {/* Logout Modal */}
       <AnimatePresence>
         {showLogoutConfirm && (
           <motion.div
@@ -294,6 +527,7 @@ const FounderDashboard = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
     </div>
   );
 };

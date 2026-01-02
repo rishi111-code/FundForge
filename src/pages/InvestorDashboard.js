@@ -1,23 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import {
-  BarChart3,
-  Briefcase,
-  DollarSign,
-  LogOut,
-  Menu,
-  TrendingUp,
-  User,
-  X,
-  Globe,
-  MessageSquare,
-  PieChart,
-  Search,
+import {BarChart3, Briefcase, DollarSign, LogOut, Menu, TrendingUp,User, X, Globe,MessageSquare,PieChart,  Search,
 } from "lucide-react";
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  PieChart as RePieChart,
+  Pie,
+  Cell,
+} from "recharts";
 
 const InvestorDashboard = () => {
   const [user, setUser] = useState(null);
+  const [openProject, setOpenProject] = useState(null);
+  const [showActiveProjects, setShowActiveProjects] = useState(false);
+const [showGlobalReach, setShowGlobalReach] = useState(false);
+
+
   const [sidebarOpen, setSidebarOpen] = useState(false); // start closed on mobile
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const navigate = useNavigate();
@@ -41,6 +46,36 @@ const InvestorDashboard = () => {
     { name: "EcoFund", invested: "$20,000", status: "Active" },
     { name: "MediGrow", invested: "$10,000", status: "Exited" },
   ];
+  const activeProjects = [
+  { name: "TechStart", stage: "Series A", invested: "$15,000" },
+  { name: "EcoFund", stage: "Seed", invested: "$20,000" },
+  { name: "MediGrow", stage: "Exited", invested: "$10,000" },
+];
+
+const globalRegions = [
+  "United States",
+  "India",
+  "Germany",
+  "Canada",
+  "Japan",
+  "Australia",
+];
+
+const portfolioGrowth = [
+  { month: "Jan", value: 30000 },
+  { month: "Feb", value: 34000 },
+  { month: "Mar", value: 38000 },
+  { month: "Apr", value: 42000 },
+  { month: "May", value: 45000 },
+];
+
+const sectorAllocation = [
+  { name: "Technology", value: 45 },
+  { name: "Healthcare", value: 30 },
+  { name: "Green Energy", value: 25 },
+];
+
+const COLORS = ["#4f46e5", "#22c55e", "#06b6d4"];
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-800">
@@ -64,17 +99,18 @@ const InvestorDashboard = () => {
               <span>Dashboard</span>
             </button>
 
-            <button className="flex items-center gap-3 text-gray-700 py-2 rounded-md hover:bg-gray-50">
+           <button className="flex items-center gap-3 text-gray-700 py-2 rounded-md hover:bg-gray-50" onClick={() => navigate('/myinvestments')}>
+
               <Briefcase size={18} />
               <span>My Investments</span>
             </button>
 
-            <button className="flex items-center gap-3 text-gray-700 py-2 rounded-md hover:bg-gray-50">
+            <button className="flex items-center gap-3 text-gray-700 py-2 rounded-md hover:bg-gray-50" onClick={() => navigate('/opportunities')}>
               <TrendingUp size={18} />
               <span>Opportunities</span>
             </button>
 
-            <button className="flex items-center gap-3 text-gray-700 py-2 rounded-md hover:bg-gray-50">
+            <button className="flex items-center gap-3 text-gray-700 py-2 rounded-md hover:bg-gray-50" onClick={() => navigate('/profile')}>
               <User size={18} />
               <span>Profile</span>
             </button>
@@ -159,17 +195,52 @@ const InvestorDashboard = () => {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl p-5 shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500">Active Projects</p>
-                  <p className="text-2xl font-bold mt-2">6</p>
-                </div>
-                <div className="p-3 bg-indigo-50 rounded-md">
-                  <Briefcase className="text-indigo-600" />
-                </div>
+            <div className="bg-white rounded-xl p-5 shadow relative">
+  <div className="flex items-center justify-between">
+    <div>
+      <p className="text-sm text-gray-500">Active Projects</p>
+      <p className="text-2xl font-bold mt-2">6</p>
+    </div>
+
+    <div className="flex items-center gap-2">
+      <button
+        onClick={() => setShowActiveProjects((s) => !s)}
+        className="text-xs px-2 py-1 border rounded-md text-indigo-600 hover:bg-indigo-50"
+      >
+        View
+      </button>
+      <div className="p-3 bg-indigo-50 rounded-md">
+        <Briefcase className="text-indigo-600" />
+      </div>
+    </div>
+  </div>
+
+  {/* DROPDOWN */}
+  <AnimatePresence>
+    {showActiveProjects && (
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -8 }}
+        className="absolute top-full right-0 mt-3 w-72 bg-white border rounded-xl shadow-lg p-4 z-20"
+      >
+        <h4 className="font-semibold mb-3">Active Projects</h4>
+        <div className="space-y-3 text-sm">
+          {activeProjects.map((p) => (
+            <div key={p.name} className="flex justify-between">
+              <div>
+                <p className="font-medium text-indigo-600">{p.name}</p>
+                <p className="text-gray-500">{p.stage}</p>
               </div>
+              <p className="font-semibold">{p.invested}</p>
             </div>
+          ))}
+        </div>
+      </motion.div>
+    )}
+  </AnimatePresence>
+</div>
+
 
             <div className="bg-white rounded-xl p-5 shadow">
               <div className="flex items-center justify-between">
@@ -183,18 +254,118 @@ const InvestorDashboard = () => {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl p-5 shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500">Global Reach</p>
-                  <p className="text-2xl font-bold mt-2">12 Countries</p>
-                </div>
-                <div className="p-3 bg-indigo-50 rounded-md">
-                  <Globe className="text-indigo-600" />
-                </div>
-              </div>
-            </div>
+           <div className="bg-white rounded-xl p-5 shadow relative">
+  <div className="flex items-center justify-between">
+    <div>
+      <p className="text-sm text-gray-500">Global Reach</p>
+      <p className="text-2xl font-bold mt-2">12 Countries</p>
+    </div>
+
+    <div className="flex items-center gap-2">
+      <button
+        onClick={() => setShowGlobalReach((s) => !s)}
+        className="text-xs px-2 py-1 border rounded-md text-indigo-600 hover:bg-indigo-50"
+      >
+        View
+      </button>
+      <div className="p-3 bg-indigo-50 rounded-md">
+        <Globe className="text-indigo-600" />
+      </div>
+    </div>
+  </div>
+
+  {/* DROPDOWN */}
+  <AnimatePresence>
+    {showGlobalReach && (
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -8 }}
+        className="absolute top-full right-0 mt-3 w-64 bg-white border rounded-xl shadow-lg p-4 z-20"
+      >
+        <h4 className="font-semibold mb-3">Regions</h4>
+        <ul className="text-sm text-gray-600 space-y-1">
+          {globalRegions.map((r) => (
+            <li key={r}>• {r}</li>
+          ))}
+        </ul>
+      </motion.div>
+    )}
+  </AnimatePresence>
+</div>
+
           </section>
+          {/* Portfolio Analytics */}
+<section className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+  
+  {/* Portfolio Growth */}
+  <div className="lg:col-span-2 bg-white rounded-xl p-6 shadow">
+    <div className="flex items-center justify-between mb-4">
+      <div>
+        <h2 className="text-xl font-semibold">Portfolio Performance</h2>
+        <p className="text-sm text-gray-500">Investment value over time</p>
+      </div>
+    </div>
+
+    <div className="h-64">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={portfolioGrowth}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="month" />
+          <YAxis />
+          <Tooltip />
+          <Line
+            type="monotone"
+            dataKey="value"
+            stroke="#4f46e5"
+            strokeWidth={3}
+            dot={{ r: 4 }}
+            activeDot={{ r: 6 }}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  </div>
+
+  {/* Asset Allocation */}
+  <div className="bg-white rounded-xl p-6 shadow">
+    <h3 className="font-semibold mb-3">Asset Allocation</h3>
+    <p className="text-sm text-gray-500 mb-4">By sector</p>
+
+    <div className="h-56">
+      <ResponsiveContainer width="100%" height="100%">
+        <RePieChart>
+          <Pie
+            data={sectorAllocation}
+            dataKey="value"
+            nameKey="name"
+            innerRadius={55}
+            outerRadius={80}
+            paddingAngle={4}
+          >
+            {sectorAllocation.map((_, index) => (
+              <Cell key={index} fill={COLORS[index]} />
+            ))}
+          </Pie>
+          <Tooltip />
+        </RePieChart>
+      </ResponsiveContainer>
+    </div>
+
+    <div className="mt-4 space-y-2 text-sm">
+      {sectorAllocation.map((s, i) => (
+        <div key={s.name} className="flex justify-between">
+          <span className="flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[i] }} />
+            {s.name}
+          </span>
+          <span className="font-medium">{s.value}%</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
 
           {/* Opportunities + quick actions */}
           <section className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
@@ -223,7 +394,7 @@ const InvestorDashboard = () => {
               <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-gray-50 transition flex items-center gap-3">
                 <PieChart /> View Portfolio
               </button>
-              <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-gray-50 transition flex items-center gap-3 mt-2">
+              <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-gray-50 transition flex items-center gap-3 mt-2" onClick={() => navigate('/myinvestments')}>
                 <Briefcase /> My Investments
               </button>
               <button className="w-full text-left px-4 py-2 rounded-lg hover:bg-gray-50 transition flex items-center gap-3 mt-2">
